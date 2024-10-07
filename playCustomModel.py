@@ -1,13 +1,13 @@
-from gymAPI import UnityEnvAPI
+from gymAPI import make_unity_env
 
 # Create the environment
-env = UnityEnvAPI("Build/RL Environment")
+env = make_unity_env()
 
 # Load the model
 model = "Load Your Model Here"
 
 # Run the environment using the loaded model
-obs = env.reset()
+obs, _ = env.reset()
 done = False
 total_reward = 0
 
