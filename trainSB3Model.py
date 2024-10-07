@@ -39,7 +39,7 @@ if __name__ == "__main__":
     argparser.add_argument(
         "--n-eval-episodes",
         type=int,
-        default=10,
+        default=5,
         help="Number of episodes to evaluate the model on",
     )
     argparser.add_argument(
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     argparser.add_argument(
         "--n-steps",
         type=int,
-        default=int(10000),
+        default=int(100_000),
         help="Total timesteps to train policy for",
     )
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     env = make_unity_env()
     env = Monitor(env)
 
-    eval_env = make_unity_env()
+    eval_env = make_unity_env(worker_id=1)
     eval_env = Monitor(eval_env)
 
     ##########################
