@@ -6,7 +6,7 @@ from mlagents_envs.base_env import ActionTuple
 
 
 class UnityEnvAPI(gym.Env):
-    def __init__(self, file_name, worker_id=0, no_graphics=False):
+    def __init__(self, file_name, worker_id=0, no_graphics=False, max_steps=5000):
         super(UnityEnvAPI, self).__init__()
         self.env = UnityEnvironment(
             file_name=file_name, worker_id=worker_id, no_graphics=no_graphics
@@ -31,9 +31,12 @@ class UnityEnvAPI(gym.Env):
         self.observation_space = spaces.Box(
             low=-np.inf, high=np.inf, shape=(total_obs_size,), dtype=np.float32
         )
+        self.max_steps = max_steps
+        self.current_epoch_steps = 0
 
     def reset(self, seed=None):
         self.env.reset()
+        self.current_epoch_steps = 0
         decision_steps, terminal_steps = self.env.get_steps(self.behavior_name)
         first_obs = self._get_obs(decision_steps)
         return first_obs, {}
@@ -42,16 +45,23 @@ class UnityEnvAPI(gym.Env):
         action_tuple = ActionTuple(continuous=np.array([action]).astype(np.float32))
         self.env.set_actions(self.behavior_name, action_tuple)
         self.env.step()
+        self.current_epoch_steps += 1
         decision_steps, terminal_steps = self.env.get_steps(self.behavior_name)
 
-        if len(decision_steps) > 0:
+        if len(decision_steps) > 0 and self.current_epoch_steps < self.max_steps:
             obs = self._get_obs(decision_steps)
             reward = decision_steps.reward[0]
             done = False
         else:
-            obs = self._get_obs(terminal_steps)
-            reward = terminal_steps.reward[0]
+            if len(terminal_steps) > 0:
+                obs = self._get_obs(terminal_steps)
+                reward = terminal_steps.reward[0]
+            else:
+                obs = self._get_obs(decision_steps)
+                reward = decision_steps.reward[0]
             done = True
+            if len(decision_steps) > 0:
+                self.reset()
 
         truncated = done  # always truncated since there is no terminal condition other than time
 

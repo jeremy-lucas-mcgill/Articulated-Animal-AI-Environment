@@ -18,12 +18,12 @@ if __name__ == "__main__":
 
     MODEL_TYPE = SAC
     MODEL_KWARGS = {
-        "batch_size": 4,
+        # "batch_size": 4,
     }
     POLICY_KWARGS = {
-        "net_arch": dict(pi=[128, 128, 128], qf=[128, 128, 128]),
-        "activation_fn": nn.Tanh,
-        "log_std_init": -1,
+        # "net_arch": dict(pi=[128, 128, 128], qf=[128, 128, 128]),
+        # "activation_fn": nn.Tanh,
+        # "log_std_init": -1,
     }
 
     ###########################
@@ -46,13 +46,13 @@ if __name__ == "__main__":
         "--n-evals",
         type=int,
         default=int(100),
-        help="Number of of evaluations to save during training",
+        help="Number of evaluations to save during training",
     )
     argparser.add_argument(
         "--n-checkpoints",
         type=int,
         default=int(10),
-        help="Number of of checkpoints to save during training",
+        help="Number of checkpoints to save during training",
     )
     argparser.add_argument(
         "--ckpt",
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     argparser.add_argument(
         "--n-steps",
         type=int,
-        default=int(100_000),
+        default=int(1_000_000),
         help="Total timesteps to train policy for",
     )
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     env = make_unity_env()
     env = Monitor(env)
 
-    eval_env = make_unity_env(worker_id=1)
+    eval_env = make_unity_env(worker_id=1, max_steps=1000)
     eval_env = Monitor(eval_env)
 
     ##########################
