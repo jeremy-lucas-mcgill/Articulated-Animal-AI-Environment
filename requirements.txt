@@ -1,5 +1,6 @@
 mlagents==0.30
-stable-baselines3==1.5.0
+stable-baselines3[extra]==2.3.2
+gymnasium
 protobuf==3.20.3
 numpy==1.21.2
 pandas==1.3.5

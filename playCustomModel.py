@@ -1,24 +1,24 @@
-from gymAPI import UnityEnvAPI
+from gymAPI import make_unity_env
 
-#Create the environment
-env = UnityEnvAPI("Build/RL Environment")
+# Create the environment
+env = make_unity_env()
 
-#Load the model
+# Load the model
 model = "Load Your Model Here"
 
-#Run the environment using the loaded model
-obs = env.reset()
+# Run the environment using the loaded model
+obs, _ = env.reset()
 done = False
 total_reward = 0
 
 try:
     while not done:
-        #Implement your model running logic here
+        # Implement your model running logic here
         pass
 
 except KeyboardInterrupt:
     print("Running interrupted.")
 
 finally:
-    #Close the environment
+    # Close the environment
     env.close()
