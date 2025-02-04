@@ -1,0 +1,2 @@
+python trainSB3model.py --L0-freq 1 --L0-maxDiff 2 --max-step 1000 --n-steps 1000000 --use-raycasts
+python trainSB3model.py --L0-freq 1 --L0-maxDiff 2 --max-step 1000 --n-steps 1000000 --use-camera
