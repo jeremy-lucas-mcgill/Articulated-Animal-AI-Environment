@@ -65,6 +65,7 @@ if __name__ == "__main__":
 
     parameters = [
     f"--seed={args.seed}",
+    f"--max-steps={args.max_steps}",
     f"--use-camera={args.use_camera}",
     f"--use-raycasts={args.use_raycasts}",
     f"--grayscale={args.grayscale}",
