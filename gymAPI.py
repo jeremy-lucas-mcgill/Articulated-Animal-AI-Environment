@@ -6,10 +6,12 @@ from mlagents_envs.base_env import ActionTuple
 
 
 class UnityEnvAPI(gym.Env):
-    def __init__(self, file_name, worker_id=0, no_graphics=False, max_steps=5000):
+    def __init__(self, file_name, worker_id=0, no_graphics=False, max_steps=5000,additional_args=None):
         super(UnityEnvAPI, self).__init__()
+        if additional_args is None:
+            additional_args = []
         self.env = UnityEnvironment(
-            file_name=file_name, worker_id=worker_id, no_graphics=no_graphics
+            file_name=file_name, worker_id=worker_id, no_graphics=no_graphics,additional_args=additional_args
         )
         self.env.reset()
         self.behavior_name = list(self.env.behavior_specs.keys())[0]
@@ -39,6 +41,7 @@ class UnityEnvAPI(gym.Env):
         self.current_epoch_steps = 0
         decision_steps, terminal_steps = self.env.get_steps(self.behavior_name)
         first_obs = self._get_obs(decision_steps)
+        print(f"First Observation: {first_obs.shape}")
         return first_obs, {}
 
     def step(self, action):
@@ -86,4 +89,6 @@ def make_unity_env(**kwargs):
         kwargs["no_graphics"] = False
     if "file_name" not in kwargs:
         kwargs["file_name"] = "Build/RL Environment"
+    if "additional_args" not in kwargs:
+        kwargs["additional_args"] = []
     return UnityEnvAPI(**kwargs)
