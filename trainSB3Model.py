@@ -173,7 +173,7 @@ if __name__ == "__main__":
             ],
             log_interval=None if SILENT else 1,
             reset_num_timesteps=False,
-            progress_bar=False if SILENT else True,
+            # progress_bar=False if SILENT else True,
         )
     except Exception as e:
         print(f"Error during training: {e}")
