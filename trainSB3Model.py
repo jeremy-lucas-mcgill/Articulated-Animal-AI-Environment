@@ -3,6 +3,7 @@ import subprocess
 import time
 import numpy as np
 from torch import nn
+import stable_baselines3
 from stable_baselines3 import *
 from stable_baselines3.common.callbacks import (
     EvalCallback,
@@ -12,13 +13,17 @@ from stable_baselines3.common.monitor import Monitor
 from gymAPI import make_unity_env
 import argparse
 import torch
+import random
+from stable_baselines3.common.logger import configure
+import shutil
+
 
 if __name__ == "__main__":
     ###########################
     ##    HYPERPARAMETERS    ##
     ###########################
 
-    MODEL_TYPE = PPO
+    MODEL_TYPE = None
     MODEL_KWARGS = {
 
     }
@@ -32,6 +37,7 @@ if __name__ == "__main__":
 
     argparser = argparse.ArgumentParser()
     ##RL Arguments
+    argparser.add_argument("--model", required=True, help="Type of model you want to train.")
     argparser.add_argument("--silent", action="store_true", help="Silent mode (no logs)")
     argparser.add_argument("--n-eval-episodes", type=int, default=1, help="Eval episodes")
     argparser.add_argument("--n-evals", type=int, default=1, help="Number of evaluations")
@@ -43,6 +49,13 @@ if __name__ == "__main__":
     argparser.add_argument("--path", type=str, default="Build/RL Environment", help="Path to environment.")
     argparser.add_argument("--no-graphics", action="store_true", default=False, help="Handles displaying graphics.")
     argparser.add_argument("--seed", type=int, default=None, help="Set a training seed. Defaults to a random value")
+
+    #hyperparameters arguments
+    # argparser.add_argument("--learning-rate", type=float, default=3e-4, help="Learning rate for the optimizer")
+    # argparser.add_argument("--gamma", type=float, default=0.99, help="Discount factor")
+    # argparser.add_argument("--clip-range", type=float, default=0.2, help="PPO clip range")
+    # argparser.add_argument("--ent-coef", type=float, default=0.0, help="Entropy coefficient")
+
     #Agent Arguments
     argparser.add_argument("--ground-reward", action="store_true", default=False, help="Agent gets a reward if its head is off the ground.")
     argparser.add_argument("--use-camera", action="store_true", default=False, help="Agent will use a camera with a default resolution of 84x84.")
@@ -94,29 +107,54 @@ if __name__ == "__main__":
     MAX_STEPS = args.max_steps
     GRAPHICS = args.no_graphics
 
+    MODEL_TYPE = getattr(stable_baselines3, args.model)
+
     if args.name is None:
         args.name = MODEL_TYPE.__name__
+
+    # --------------------------------------
+    # SEED MANAGEMENT
+    # --------------------------------------
+    if args.seed is None:
+        args.seed = random.randint(0, 2**31 - 1)
+    print(f"Using seed: {args.seed}")
+
+    # Seed Python, NumPy, Torch
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(args.seed)
 
     if args.ckpt is not None:
         CHECKPOINT = args.ckpt.strip()
         LOG_DIR_SUFFIX = "/" + os.path.splitext(os.path.basename(CHECKPOINT))[0]
     else:
         CHECKPOINT = None
-        LOG_DIR_SUFFIX = "/0_steps"
+        LOG_DIR_SUFFIX = "/seed-" + str(args.seed)
 
-    log_dir = f"data/{args.name.strip()}" + LOG_DIR_SUFFIX
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
+    # --------------------------------------
+    # DIRECTORY SETUP
+    # --------------------------------------
+    models_dir = f"models/{args.name.strip()}" + LOG_DIR_SUFFIX
+    logs_dir = f"logs/{args.name.strip()}" + LOG_DIR_SUFFIX
+
+    if not os.path.exists(models_dir):
+        os.makedirs(models_dir)
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
 
     ##########################
     ##  ENVIRONMENT  SETUP  ##
     ##########################
 
     try:
-        env = make_unity_env(no_graphics=GRAPHICS,worker_id=0, max_steps=MAX_STEPS, file_name=PATH,additional_args=parameters)
+        worker1 = random.randint(0,65534)
+        worker2 = worker1 + 1
+        env = make_unity_env(no_graphics=GRAPHICS, worker_id=worker1, max_steps=MAX_STEPS, file_name=PATH,additional_args=parameters)
         env = Monitor(env)
 
-        eval_env = make_unity_env(no_graphics=GRAPHICS, worker_id=1, max_steps=MAX_STEPS, file_name=PATH,additional_args=parameters)
+        eval_env = make_unity_env(no_graphics=GRAPHICS, worker_id=worker2, max_steps=MAX_STEPS, file_name=PATH,additional_args=parameters)
         eval_env = Monitor(eval_env)
 
         ##########################
@@ -134,6 +172,7 @@ if __name__ == "__main__":
                 env=env,
                 verbose=0,
                 policy_kwargs=POLICY_KWARGS,
+                tensorboard_log=logs_dir,    # Use logs_dir for TensorBoard
                 **MODEL_KWARGS,
             )
         else:
@@ -143,21 +182,24 @@ if __name__ == "__main__":
                 env=env,
             )
 
+        logger = configure(logs_dir, ["stdout", "csv", "log", "tensorboard"])
+        model.set_logger(logger)
+
         ##########################
         ##    TRAINING  LOOP    ##
         ##########################
 
         checkpoint_callback = CheckpointCallback(
             save_freq=TOTAL_TIMESTEPS // N_CHECKPOINTS,
-            save_path=log_dir,
+            save_path=models_dir,
             name_prefix="ckpt",
             verbose=0,
         )
 
         eval_callback = EvalCallback(
             eval_env,
-            best_model_save_path=log_dir,
-            log_path=log_dir,
+            best_model_save_path=models_dir,
+            log_path=logs_dir,
             eval_freq=TOTAL_TIMESTEPS // N_EVALS,
             n_eval_episodes=N_EVAL_EPISODES,
             deterministic=True,
@@ -177,8 +219,11 @@ if __name__ == "__main__":
         )
     except Exception as e:
         print(f"Error during training: {e}")
+        for directory in [models_dir, logs_dir]:
+            if os.path.isdir(directory) and not os.listdir(directory):
+                shutil.rmtree(directory)
     except KeyboardInterrupt:
-        model_filename = log_dir + "/ckpt_{}".format(model.num_timesteps)
+        model_filename = models_dir + "/ckpt_{}".format(model.num_timesteps)
         print(
             "Training interrupted. Saving current model state to {}.".format(
                 model_filename
