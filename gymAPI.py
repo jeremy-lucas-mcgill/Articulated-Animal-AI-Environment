@@ -1,5 +1,5 @@
-import gymnasium as gym
-from gymnasium import spaces
+import gym
+from gym import spaces
 import numpy as np
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.base_env import ActionTuple
@@ -42,7 +42,7 @@ class UnityEnvAPI(gym.Env):
         decision_steps, terminal_steps = self.env.get_steps(self.behavior_name)
         first_obs = self._get_obs(decision_steps)
         print(f"First Observation: {first_obs.shape}")
-        return first_obs, {}
+        return first_obs #, {}
 
     def step(self, action):
         action_tuple = ActionTuple(continuous=np.array([action]).astype(np.float32))
@@ -66,9 +66,9 @@ class UnityEnvAPI(gym.Env):
             if len(decision_steps) > 0:
                 self.reset()
 
-        truncated = done  # always truncated since there is no terminal condition other than time
+        #truncated = done  # always truncated since there is no terminal condition other than time
 
-        return obs, reward, done, truncated, {}
+        return obs, reward, done,  {} #truncated, {} 
 
     def render(self, mode="human"):
         pass

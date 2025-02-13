@@ -1,2 +1,10 @@
 .venv/*
 **/__pycache__/*
+
+# for the releases
+*.app
+
+# 
+data/
+logs/
+models/
