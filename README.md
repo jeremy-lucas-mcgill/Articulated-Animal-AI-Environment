@@ -10,6 +10,8 @@ create a conda environment with
 
 Python 3.9.13
 
+conda create -p ./rl-research-env python=3.9.13
+
 Activate the environtment
 
 the install the requirements with
