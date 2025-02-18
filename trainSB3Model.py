@@ -16,7 +16,7 @@ import torch
 import random
 from stable_baselines3.common.logger import configure
 import shutil
-
+from stop_training import TerminateOnSingleNanInfCallback
 
 if __name__ == "__main__":
     ###########################
@@ -126,12 +126,19 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
 
+    # if args.ckpt is not None:
+    #     CHECKPOINT = args.ckpt.strip()
+    #     LOG_DIR_SUFFIX = "/" + os.path.splitext(os.path.basename(CHECKPOINT))[0]
+    # else:
+    #     CHECKPOINT = None
+    #     LOG_DIR_SUFFIX = "/seed-" + str(args.seed)
+    
     if args.ckpt is not None:
         CHECKPOINT = args.ckpt.strip()
-        LOG_DIR_SUFFIX = "/" + os.path.splitext(os.path.basename(CHECKPOINT))[0]
     else:
         CHECKPOINT = None
-        LOG_DIR_SUFFIX = "/seed-" + str(args.seed)
+
+    LOG_DIR_SUFFIX = "/seed-" + str(args.seed)
 
     # --------------------------------------
     # DIRECTORY SETUP
@@ -147,6 +154,9 @@ if __name__ == "__main__":
     ##########################
     ##  ENVIRONMENT  SETUP  ##
     ##########################
+
+    env = None
+    eval_env = None
 
     try:
         worker1 = random.randint(0,65534)
@@ -207,11 +217,14 @@ if __name__ == "__main__":
             verbose=0,
         )
 
+        nan_inf_callback = TerminateOnSingleNanInfCallback(verbose=1)
+
         model.learn(
             total_timesteps=TOTAL_TIMESTEPS,
             callback=[
                 eval_callback,
                 checkpoint_callback,
+                nan_inf_callback,
             ],
             log_interval=None if SILENT else 1,
             reset_num_timesteps=False,
