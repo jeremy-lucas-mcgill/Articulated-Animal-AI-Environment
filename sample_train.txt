@@ -1,3 +1,8 @@
-python trainSB3model.py --L0-freq 1 --max-step 1000 --n-steps 1000000 --use-raycasts --path [PATH TO RELEASED VERSION]
+python trainSB3model.py --model PPO --L0-freq 1 --max-step 1000 --n-steps 1000000 --use-raycasts --path "AAAI-Windows\RL Environment.exe"
 python trainSB3model.py --L0-freq 1 --L0-maxDiff 2 --max-step 1000 --n-steps 1000000 --use-raycasts --path [PATH TO RELEASED VERSION]
 python trainSB3model.py --L0-freq 1 --L0-maxDiff 2 --max-step 1000 --n-steps 1000000 --use-camera --path [PATH TO RELEASED VERSION]
+
+python trainSB3model.py --model PPO --LR-freq 1 --LR-minDiff 10 --LR-maxDiff 10 --max-step 5000 --n-steps 1000000 --use-raycasts --no-graphics --path "AAAI-Windows\RL Environment.exe"
+
+
+python test.py --model PPO --model_path models\PPO\seed-1936387930\ckpt_712704.zip --path "AAAI-Windows\RL Environment" --n-eval-episodes 5 --use-raycasts --max-steps 1000 --speed 1

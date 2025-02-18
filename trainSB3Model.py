@@ -64,8 +64,13 @@ if __name__ == "__main__":
     argparser.add_argument("--camera-resolution", type=int, default=32, help="Change agent's camera resolution to size KxK. Default is 32x32.")
     argparser.add_argument("--num-rays", type=int, default=8, help="Change agent's number of rays. Default is 8 per side.")
     argparser.add_argument("--ray-angle", type=int, default=45, help="Change agent's ray angle. Default is 45 degrees per side.")
+    argparser.add_argument("--speed", type=int, default=20, help="Change simulation speed.")
+
 
     #Test Arguments
+    argparser.add_argument("--LR-freq", type=float, default=0, help="LR frequency")
+    argparser.add_argument("--LR-minDiff", type=int, default=0, help="LR min difficulty")
+    argparser.add_argument("--LR-maxDiff", type=int, default=0, help="LR max difficulty")
     argparser.add_argument("--L0-freq", type=float, default=0, help="L0 frequency")
     argparser.add_argument("--L0-minDiff", type=int, default=0, help="L0 min difficulty")
     argparser.add_argument("--L0-maxDiff", type=int, default=0, help="L0 max difficulty")
@@ -85,7 +90,11 @@ if __name__ == "__main__":
     f"--camera-resolution={args.camera_resolution}",
     f"--num-rays={args.num_rays}",
     f"--ray-angle={args.ray_angle}",
+    f"--speed={args.speed}",
     f"--ground-reward={args.ground_reward}",
+    f"--LR-freq={args.LR_freq}",
+    f"--LR-minDiff={args.LR_minDiff}",
+    f"--LR-maxDiff={args.LR_maxDiff}",
     f"--L0-freq={args.L0_freq}",
     f"--L0-minDiff={args.L0_minDiff}",
     f"--L0-maxDiff={args.L0_maxDiff}",

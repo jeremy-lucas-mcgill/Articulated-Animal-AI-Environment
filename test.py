@@ -50,6 +50,7 @@ if __name__ == "__main__":
     argparser.add_argument("--num-rays", type=int, default=8, help="Number of rays per side")
     argparser.add_argument("--ray-angle", type=int, default=45, help="Angle for each ray")
     argparser.add_argument("--ground-reward", action="store_true", default=False, help="Agent gets a reward for head-off-ground")
+    argparser.add_argument("--speed", type=int, default=20, help="Change simulation speed.")
     
     # Level-specific parameters (if applicable)
     argparser.add_argument("--L0-freq", type=float, default=0, help="L0 frequency")
@@ -58,26 +59,33 @@ if __name__ == "__main__":
     argparser.add_argument("--L1-freq", type=float, default=0, help="L1 frequency")
     argparser.add_argument("--L1-minDiff", type=int, default=0, help="L1 minimum difficulty")
     argparser.add_argument("--L1-maxDiff", type=int, default=0, help="L1 maximum difficulty")
+    argparser.add_argument("--LR-freq", type=float, default=0, help="LR frequency")
+    argparser.add_argument("--LR-minDiff", type=int, default=0, help="LR min difficulty")
+    argparser.add_argument("--LR-maxDiff", type=int, default=0, help="LR max difficulty")
     
     args = argparser.parse_args()
 
     # Extend the global parameters list so that the same settings are passed to the Unity environment.
     parameters.extend([
-        f"--seed={args.seed}",
-        f"--max-steps={args.max_steps}",
-        f"--use-camera={args.use_camera}",
-        f"--use-raycasts={args.use_raycasts}",
-        f"--grayscale={args.grayscale}",
-        f"--camera-resolution={args.camera_resolution}",
-        f"--num-rays={args.num_rays}",
-        f"--ray-angle={args.ray_angle}",
-        f"--ground-reward={args.ground_reward}",
-        f"--L0-freq={args.L0_freq}",
-        f"--L0-minDiff={args.L0_minDiff}",
-        f"--L0-maxDiff={args.L0_maxDiff}",
-        f"--L1-freq={args.L1_freq}",
-        f"--L1-minDiff={args.L1_minDiff}",
-        f"--L1-maxDiff={args.L1_maxDiff}"
+    f"--seed={args.seed}",
+    f"--max-steps={args.max_steps}",
+    f"--use-camera={args.use_camera}",
+    f"--use-raycasts={args.use_raycasts}",
+    f"--grayscale={args.grayscale}",
+    f"--camera-resolution={args.camera_resolution}",
+    f"--num-rays={args.num_rays}",
+    f"--ray-angle={args.ray_angle}",
+    f"--speed={args.speed}",
+    f"--ground-reward={args.ground_reward}",
+    f"--LR-freq={args.LR_freq}",
+    f"--LR-minDiff={args.LR_minDiff}",
+    f"--LR-maxDiff={args.LR_maxDiff}",
+    f"--L0-freq={args.L0_freq}",
+    f"--L0-minDiff={args.L0_minDiff}",
+    f"--L0-maxDiff={args.L0_maxDiff}",
+    f"--L1-freq={args.L1_freq}",
+    f"--L1-minDiff={args.L1_minDiff}",
+    f"--L1-maxDiff={args.L1_maxDiff}"
     ])
 
     # Retrieve the model class from stable_baselines3 (e.g. PPO, A2C, SAC, etc.)

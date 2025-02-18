@@ -41,7 +41,7 @@ class UnityEnvAPI(gym.Env):
         self.current_epoch_steps = 0
         decision_steps, terminal_steps = self.env.get_steps(self.behavior_name)
         first_obs = self._get_obs(decision_steps)
-        print(f"First Observation: {first_obs.shape}")
+        #print(f"First Observation: {first_obs.shape}")
         return first_obs #, {}
 
     def step(self, action):
