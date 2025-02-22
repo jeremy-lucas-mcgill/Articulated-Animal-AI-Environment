@@ -21,7 +21,7 @@ class TerminateOnThresholdNanInfCallback(BaseCallback):
         total_nan = 0
         total_inf = 0
 
-        for param in self.model.parameters():
+        for param in self.model.policy.parameters():
             param_data = param.detach()
             num_elements = param_data.numel()
             total_params += num_elements
@@ -49,7 +49,7 @@ class TerminateOnSingleNanInfCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         # Iterate through all parameters of the model
-        for param in self.model.parameters():
+        for param in self.model.policy.parameters():
             # Check if any parameter has a NaN or Inf value
             if torch.any(torch.isnan(param)) or torch.any(torch.isinf(param)):
                 print("NaN or Inf detected in model weights. Terminating training!")
