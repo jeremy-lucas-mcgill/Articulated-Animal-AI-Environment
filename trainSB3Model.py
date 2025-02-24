@@ -113,7 +113,6 @@ if __name__ == "__main__":
     N_EVALS = args.n_evals
     N_CHECKPOINTS = args.n_checkpoints
     PATH = args.path
-    MAX_STEPS = args.max_steps
     GRAPHICS = args.no_graphics
 
     MODEL_TYPE = getattr(stable_baselines3, args.model)
@@ -170,10 +169,10 @@ if __name__ == "__main__":
     try:
         worker1 = random.randint(0,65534)
         worker2 = worker1 + 1
-        env = make_unity_env(no_graphics=GRAPHICS, worker_id=worker1, max_steps=MAX_STEPS, file_name=PATH,additional_args=parameters)
+        env = make_unity_env(no_graphics=GRAPHICS, worker_id=worker1, file_name=PATH,additional_args=parameters)
         env = Monitor(env)
 
-        eval_env = make_unity_env(no_graphics=GRAPHICS, worker_id=worker2, max_steps=MAX_STEPS, file_name=PATH,additional_args=parameters)
+        eval_env = make_unity_env(no_graphics=GRAPHICS, worker_id=worker2, file_name=PATH,additional_args=parameters)
         eval_env = Monitor(eval_env)
 
         ##########################
@@ -185,6 +184,8 @@ if __name__ == "__main__":
         print(f"Using device: {device}")
 
         if CHECKPOINT is None:
+            print(POLICY_KWARGS,MODEL_KWARGS)
+            print(f"MODEL_TYPE: {MODEL_TYPE}")
             print("Creating new model.")
             model = MODEL_TYPE(
                 policy="MlpPolicy",
@@ -194,6 +195,8 @@ if __name__ == "__main__":
                 tensorboard_log=logs_dir,    # Use logs_dir for TensorBoard
                 **MODEL_KWARGS,
             )
+            print(f"Model created successfully: {model}")
+            print("Available attributes/methods in model:", dir(model))
         else:
             print("Loading model from checkpoint.")
             model = MODEL_TYPE.load(
@@ -233,7 +236,8 @@ if __name__ == "__main__":
             callback=[
                 eval_callback,
                 checkpoint_callback,
-                nan_inf_callback,
+                #nan_inf_callback,
+                
             ],
             log_interval=None if SILENT else 1,
             reset_num_timesteps=False,

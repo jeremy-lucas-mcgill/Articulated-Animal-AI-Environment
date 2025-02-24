@@ -33,42 +33,33 @@ class UnityEnvAPI(gym.Env):
         self.observation_space = spaces.Box(
             low=-np.inf, high=np.inf, shape=(total_obs_size,), dtype=np.float32
         )
-        self.max_steps = max_steps
-        self.current_epoch_steps = 0
 
     def reset(self, seed=None):
         self.env.reset()
-        self.current_epoch_steps = 0
         decision_steps, terminal_steps = self.env.get_steps(self.behavior_name)
         first_obs = self._get_obs(decision_steps)
         #print(f"First Observation: {first_obs.shape}")
         return first_obs #, {}
 
     def step(self, action):
-        action_tuple = ActionTuple(continuous=np.array([action]).astype(np.float32))
+        action_tuple = ActionTuple(continuous=np.array([action], dtype=np.float32))
+        
         self.env.set_actions(self.behavior_name, action_tuple)
         self.env.step()
-        self.current_epoch_steps += 1
+        
         decision_steps, terminal_steps = self.env.get_steps(self.behavior_name)
 
-        if len(decision_steps) > 0 and self.current_epoch_steps < self.max_steps:
+        if len(terminal_steps) > 0:
+            obs = self._get_obs(terminal_steps)
+            reward = terminal_steps.reward[0]
+            done = True
+        else:
             obs = self._get_obs(decision_steps)
             reward = decision_steps.reward[0]
             done = False
-        else:
-            if len(terminal_steps) > 0:
-                obs = self._get_obs(terminal_steps)
-                reward = terminal_steps.reward[0]
-            else:
-                obs = self._get_obs(decision_steps)
-                reward = decision_steps.reward[0]
-            done = True
-            if len(decision_steps) > 0:
-                self.reset()
 
-        #truncated = done  # always truncated since there is no terminal condition other than time
-
-        return obs, reward, done,  {} #truncated, {} 
+        #print(f"Reward: {reward}") if done else 0
+        return obs, reward, done, {}
 
     def render(self, mode="human"):
         pass
