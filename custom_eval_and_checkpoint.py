@@ -2,23 +2,23 @@ from stable_baselines3.common.callbacks import BaseCallback
 import os
 import numpy as np
 
-def custome_schedule(total_timesteps, mode="fixed", num_evals=10):
+def custome_schedule(total_timesteps, mode="fixed", num_runs=10):
     """
     Generate a schedule of timesteps.
     
     Args:
         total_timesteps (int): Total number of training timesteps.
         mode (str): 'fixed' for evenly spaced intervals, 'log' for logarithmically spaced points.
-        num_evals (int): Number of evaluation / checkpoints points desired.
+        num_runs (int): Number of run points desired.
     
     Returns:
         List[int]: A list of timesteps when evaluations should occur.
     """
     if mode == "fixed":
-        interval = total_timesteps // num_evals
+        interval = total_timesteps // num_runs
         return list(range(interval, total_timesteps + 1, interval))
     elif mode == "log":
-        eval_points = np.unique(np.logspace(0, np.log10(total_timesteps), num=num_evals, dtype=int))
+        eval_points = np.unique(np.logspace(0, np.log10(total_timesteps), num=num_runs, dtype=int))
         return eval_points.tolist()
     else:
         raise ValueError("Unsupported mode. Use 'fixed' or 'log'.")

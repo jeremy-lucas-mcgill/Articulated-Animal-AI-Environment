@@ -222,7 +222,7 @@ if __name__ == "__main__":
 
         # # make sure to add them to the call back list in model.learn()
 
-        # checkpoint_schedule = custome_schedule(TOTAL_TIMESTEPS, mode="log", num_checkpoints=N_CHECKPOINTS)
+        # checkpoint_schedule = custome_schedule(TOTAL_TIMESTEPS, mode="log", num_runs=N_CHECKPOINTS)
 
         # custom_checkpoint_callback = CustomCheckpointCallback(
         #     checkpoint_schedule=checkpoint_schedule,
@@ -232,7 +232,7 @@ if __name__ == "__main__":
         # )
 
         # # After parsing arguments and setting up your TOTAL_TIMESTEPS and N_EVALS:
-        # custom_eval_schedule = custome_schedule(TOTAL_TIMESTEPS, mode="fixed", num_evals=N_EVALS)
+        # custom_eval_schedule = custome_schedule(TOTAL_TIMESTEPS, mode="fixed", num_runs=N_EVALS)
 
         # custom_eval_callback = CustomEvalCallback(
         #     eval_env=eval_env,
@@ -262,6 +262,8 @@ if __name__ == "__main__":
                 eval_callback,
                 checkpoint_callback,
                 nan_inf_callback,
+                # custom_eval_callback,
+                # custom_checkpoint_callback
             ],
             log_interval=None if SILENT else 1,
             reset_num_timesteps=False,
