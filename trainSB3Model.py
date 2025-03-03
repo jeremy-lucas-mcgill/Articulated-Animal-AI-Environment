@@ -17,6 +17,7 @@ import random
 from stable_baselines3.common.logger import configure
 import shutil
 from stop_training import TerminateOnSingleNanInfCallback
+from custom_eval_and_checkpoint import CustomEvalCallback, CustomCheckpointCallback, custome_schedule
 
 if __name__ == "__main__":
     ###########################
@@ -218,6 +219,30 @@ if __name__ == "__main__":
             verbose=0,
         )
 
+
+        # # make sure to add them to the call back list in model.learn()
+
+        # checkpoint_schedule = custome_schedule(TOTAL_TIMESTEPS, mode="log", num_checkpoints=N_CHECKPOINTS)
+
+        # custom_checkpoint_callback = CustomCheckpointCallback(
+        #     checkpoint_schedule=checkpoint_schedule,
+        #     checkpoint_dir=models_dir,
+        #     name_prefix="ckpt",
+        #     verbose=0
+        # )
+
+        # # After parsing arguments and setting up your TOTAL_TIMESTEPS and N_EVALS:
+        # custom_eval_schedule = custome_schedule(TOTAL_TIMESTEPS, mode="fixed", num_evals=N_EVALS)
+
+        # custom_eval_callback = CustomEvalCallback(
+        #     eval_env=eval_env,
+        #     eval_schedule=custom_eval_schedule,
+        #     n_eval_episodes=N_EVAL_EPISODES,
+        #     best_model_save_path=models_dir,
+        #     log_path=logs_dir,
+        #     verbose=0
+        # )
+
         eval_callback = EvalCallback(
             eval_env,
             best_model_save_path=models_dir,
@@ -236,8 +261,7 @@ if __name__ == "__main__":
             callback=[
                 eval_callback,
                 checkpoint_callback,
-                #nan_inf_callback,
-                
+                nan_inf_callback,
             ],
             log_interval=None if SILENT else 1,
             reset_num_timesteps=False,
