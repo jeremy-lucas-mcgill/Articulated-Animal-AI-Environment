@@ -1,7 +1,9 @@
+pip==22.0.4
 mlagents==0.30
-stable-baselines3==2.4.1
+stable-baselines3==1.5.0
 protobuf==3.20.3
 numpy==1.21.2
 pandas==1.3.5
 matplotlib==3.5.1
 stable-baselines3[extra]
+gymnasium
